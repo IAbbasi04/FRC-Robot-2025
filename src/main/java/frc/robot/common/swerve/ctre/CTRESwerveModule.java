@@ -40,6 +40,8 @@ public class CTRESwerveModule {
         m_steerMotor = new TalonFX(constants.SteerMotorId, canbusName);
         m_cancoder = new CANcoder(constants.CANcoderId, canbusName);
 
+        this.m_constants = constants;
+
         TalonFXConfiguration talonConfigs = new TalonFXConfiguration();
 
         talonConfigs.Slot0 = constants.DriveMotorGains;

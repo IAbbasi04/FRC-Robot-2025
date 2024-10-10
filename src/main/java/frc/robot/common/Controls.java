@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
 
 public class Controls {
+    public static Trigger SNAIL_MODE = new Trigger(() -> false);
     public static Trigger INTAKE = new Trigger(() -> false);
     public static Trigger OUTAKE = new Trigger(() -> false);
     public static Trigger PRIME_SUBWOOFER = new Trigger(() -> false);
@@ -35,6 +36,7 @@ public class Controls {
 
         SHOOT = RobotContainer.getDriverController().rightTrigger();
 
+        SNAIL_MODE = RobotContainer.getDriverController().leftStick();
     }
 
     public static void dualDriverControls() {
@@ -50,11 +52,13 @@ public class Controls {
     }
 
     public static void initializeShuffleboardLogs(boolean logToShuffleboard) {
+        Controls.logToShuffleboard = logToShuffleboard;
+        if (!logToShuffleboard) return;
+        
+        Controls.loggingEnabled = true;
         Controls.logger = new SmartLogger("Controls");
         Controls.logger.enable();
 
-        Controls.logToShuffleboard = logToShuffleboard;
-        Controls.loggingEnabled = true;
     }
 
     public static void logControlsToShuffleboard() {

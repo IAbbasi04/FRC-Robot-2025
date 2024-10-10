@@ -45,7 +45,6 @@ public class Robot extends LoggedRobot {
         String path = "/U/"+time+".wpilog";
         Logger.addDataReceiver(new WPILOGWriter(path)); // Log to a USB stick
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
         Logger.start();
     }
     else { // If simulated
@@ -59,7 +58,6 @@ public class Robot extends LoggedRobot {
     TIMER.start();
 
     CommandScheduler.getInstance().run();
-    m_robotContainer.logData();
     Controls.logControlsToShuffleboard();
   }
 

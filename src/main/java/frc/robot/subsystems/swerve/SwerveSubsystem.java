@@ -9,12 +9,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.common.Constants.INPUT;
 import frc.robot.common.Constants.SWERVE;
 import frc.robot.common.Constants;
 import frc.robot.common.MatchMode;
 import frc.robot.Robot;
 import frc.robot.common.Ports;
-import frc.robot.common.SmartLogger;
 import frc.robot.common.swerve.Swerve;
 import frc.robot.common.swerve.ctre.*;
 import frc.robot.common.swerve.sds.SDSModuleConfigurations;
@@ -168,7 +170,6 @@ public class SwerveSubsystem extends NewtonSubsystem {
         );
 
         m_commands = new SwerveCommands(this);
-        super.m_logger = new SmartLogger("SwerveSubsystem");
     }
 
     /**
@@ -189,47 +190,26 @@ public class SwerveSubsystem extends NewtonSubsystem {
      * Runs through code for normalizing and processing driver input
      */
     public ChassisSpeeds processInputs(double translateX, double translateY, double rotate) {
-        // double driveTranslateY = (
-        //     translateY >= 0
-        //     ? (Math.pow(translateY, SWERVE.TRANSLATE_EXPONENT))
-        //     : -(Math.pow(translateY, SWERVE.TRANSLATE_EXPONENT))
-        // );
-
-        // double driveTranslateX = (
-        //     translateX >= 0 
-        //     ? (Math.pow(translateX, SWERVE.TRANSLATE_EXPONENT))
-        //     : -(Math.pow(translateX, SWERVE.TRANSLATE_EXPONENT))
-        // );
-
-        // double driveRotate = (
-        //     rotate >= 0
-        //     ? (Math.pow(rotate, SWERVE.TRANSLATE_EXPONENT))
-        //     : -(Math.pow(rotate, SWERVE.TRANSLATE_EXPONENT))
-        // );
-
-        // double driveTranslateX = Math.pow(translateX, SWERVE.TRANSLATE_EXPONENT) * Math.signum(translateX);
-        // double driveTranslateY = Math.pow(translateY, SWERVE.TRANSLATE_EXPONENT) * Math.signum(translateY);
-        // double driveRotate = Math.pow(rotate, SWERVE.ROTATE_EXPONENT) * Math.signum(rotate);
-
-        double driveTranslateX = translateX;
-        double driveTranslateY = translateY;
-        double driveRotate = rotate;
+        if (Robot.MODE.isAny(MatchMode.AUTONOMOUS, MatchMode.DISABLED)) return new ChassisSpeeds();
+        double driveTranslateX = translateX;// >= Constants.INPUT.JOYSTICK_DEADBAND_TRANSLATE ? translateX : 0;
+        double driveTranslateY = translateY;// >= Constants.INPUT.JOYSTICK_DEADBAND_TRANSLATE ? translateY : 0;
+        double driveRotate = rotate;// >= Constants.INPUT.JOYSTICK_DEADBAND_ROTATE ? rotate : 0;;
 
         //Create a new ChassisSpeeds object with X, Y, and angular velocity from controller input
         ChassisSpeeds currentSpeeds;
 
         if (m_isSnailMode) { //Slow Mode slows down the robot for better precision & control
             currentSpeeds = new ChassisSpeeds(
-                driveTranslateY * SWERVE.TRANSLATE_POWER_SLOW * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
-                driveTranslateX * SWERVE.TRANSLATE_POWER_SLOW * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
-                driveRotate * SWERVE.ROTATE_POWER_SLOW * SWERVE.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                driveTranslateY * INPUT.TRANSLATE_POWER_SLOW * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
+                driveTranslateX * INPUT.TRANSLATE_POWER_SLOW * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
+                driveRotate * INPUT.ROTATE_POWER_SLOW * SWERVE.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
             );
         }
         else {
             currentSpeeds = new ChassisSpeeds(
-                driveTranslateY * SWERVE.TRANSLATE_POWER_FAST * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
-                driveTranslateX * SWERVE.TRANSLATE_POWER_FAST * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
-                driveRotate * SWERVE.ROTATE_POWER_FAST * SWERVE.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                driveTranslateY * INPUT.TRANSLATE_POWER_FAST * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
+                driveTranslateX * INPUT.TRANSLATE_POWER_FAST * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
+                driveRotate * INPUT.ROTATE_POWER_FAST * SWERVE.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
             );
         }
 
@@ -299,23 +279,51 @@ public class SwerveSubsystem extends NewtonSubsystem {
     @Override
     public void periodicLogs() {
         this.m_logger.logChassisSpeeds("Desired Speeds", m_desiredSpeeds);
+        this.m_logger.logChassisSpeeds("Current Speeds", m_swerve.getCurrentSpeeds());
+        this.m_logger.logPose2d("Current Pose", m_swerve.getCurrentPose());
     }
 
     @Override
     public void periodicOutputs() {
         this.m_swerve.driveRobotCentric(m_desiredSpeeds);
-        if (Robot.isSimulation() && Robot.MODE.isAny(MatchMode.TELEOP, MatchMode.TEST)) {
-            Robot.FIELD.setRobotPose( // Translate the simulated robot pose to simulate teleop movement
-                getCurrentPose().transformBy(
-                    new Transform2d(
-                        new Translation2d(
-                            0.02 * m_desiredSpeeds.vxMetersPerSecond,
-                            0.02 * m_desiredSpeeds.vyMetersPerSecond
-                        ),
-                        Rotation2d.fromRadians(0.02 * m_desiredSpeeds.omegaRadiansPerSecond)
-                    )
-                )
-            );
+        if (Robot.isSimulation()) {
+            switch (Robot.MODE) {
+                case AUTONOMOUS:
+                    double colorMultiplier = 1;
+                    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+                        colorMultiplier = -1;
+                    }
+
+                    Robot.FIELD.setRobotPose( // Translate the simulated robot pose to simulate teleop movement
+                        getCurrentPose().transformBy(
+                            new Transform2d(
+                                new Translation2d(
+                                    0.02 * m_desiredSpeeds.vxMetersPerSecond * colorMultiplier,
+                                    0.02 * m_desiredSpeeds.vyMetersPerSecond * colorMultiplier
+                                ),
+                                Rotation2d.fromRadians(0.02 * m_desiredSpeeds.omegaRadiansPerSecond)
+                            )
+                        )
+                    );
+                break;
+                case TEST: // Test drives the same as teleop
+                case TELEOP:
+                    Robot.FIELD.setRobotPose( // Translate the simulated robot pose to simulate teleop movement
+                        getCurrentPose().transformBy(
+                            new Transform2d(
+                                new Translation2d(
+                                    -0.02 * m_desiredSpeeds.vyMetersPerSecond,
+                                    0.02 * m_desiredSpeeds.vxMetersPerSecond
+                                ),
+                                Rotation2d.fromRadians(0.02 * m_desiredSpeeds.omegaRadiansPerSecond)
+                            )
+                        )
+                    );
+                default:
+                // Do nothing if in disabled
+                break;
+            }
+            
         }
     }
 }

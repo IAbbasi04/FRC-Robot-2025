@@ -17,6 +17,16 @@ public class SmartLogger {
 
     private boolean logToShuffleboard = true;
 
+    public SmartLogger(String name, boolean logToShuffleboard) {
+        this.n_name = name;
+        this.logToShuffleboard = logToShuffleboard;
+
+        if (!logToShuffleboard) return;
+
+        this.shuffleboardTab = Shuffleboard.getTab(name);
+        this.cards = new Hashtable<>();
+    }
+
     public SmartLogger(String name) {
         this.n_name = name;
         this.shuffleboardTab = Shuffleboard.getTab(name);

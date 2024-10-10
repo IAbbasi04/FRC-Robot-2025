@@ -10,16 +10,20 @@ public class SubsystemList {
     public SubsystemList(NewtonSubsystem... subsystems) {
         m_subsystems = new ArrayList<>();
         for (NewtonSubsystem subsystem : subsystems) {
-            
-            m_subsystems.add(subsystem);
             subsystem.m_running = true;
+            m_subsystems.add(subsystem);
         }
+    }
+
+    public void initializeLoggers(boolean logToShuffleboard) {
+        m_subsystems.forEach(subsystem -> subsystem.initializeLogger(logToShuffleboard));
     }
 
     /**
      * Adds a subsystem to the list of subsytems
      */
     public void addSubsystem(NewtonSubsystem subsystem) {
+        subsystem.m_running = true;
         m_subsystems.add(subsystem);
     }
 
@@ -30,10 +34,6 @@ public class SubsystemList {
 
     public void enableShuffleboardLogging(boolean enable) {
         m_subsystems.forEach(subsystem -> subsystem.enableLogger(enable));
-    }
-
-    public void logDataAll() {
-        // m_subsystems.forEach(subsystem -> subsystem.periodicLogs());
     }
 
     public void onInitAll() {

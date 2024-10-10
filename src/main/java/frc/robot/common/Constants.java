@@ -28,7 +28,6 @@ public final class Constants {
 
         public static final double DRIVE_MOTOR_GEAR_RATIO = SDSModuleConfigurations.MK4I_L2.getDriveReduction();
         public static final double STEER_MOTOR_GEAR_RATIO = SDSModuleConfigurations.MK4I_L2.getSteerReduction();
-        public static final double STEEMOTOR_GEAR_RATIO = SDSModuleConfigurations.MK4I_L2.getWheelDiameter();
 
         public static final ProfileGains THROTTLE_GAINS = new ProfileGains()
             .setP(THROTTLE_kP)
@@ -47,11 +46,6 @@ public final class Constants {
         public static final double WHEEL_CIRCUMFERENCE = 4 * Math.PI; // inches
 
         public static final double DRIVE_TRAIN_RADIUS = Math.sqrt(Math.pow(DRIVE_TRAIN_WIDTH, 2) + Math.pow(DRIVE_TRAIN_LENGTH, 2)); // meters
-
-        public static final double TRANSLATE_POWER_FAST = 1.0; // Scaling for teleop driving.  1.0 is maximum
-        public static final double ROTATE_POWER_FAST = 0.75; // Scaling for teleop driving.  1.0 is maximum
-        public static final double TRANSLATE_POWER_SLOW = 0.15; // Scaling for teleop driving.  1.0 is maximum
-        public static final double ROTATE_POWER_SLOW = 0.15; // Scaling for teleop driving.  1.0 is maximum   
 
         public static final double MAX_VOLTAGE = 12.0;
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.5;
@@ -141,7 +135,19 @@ public final class Constants {
     }
 
     public static class INPUT {
-        public static int DRIVER_CONTROLLER_PORT = 0;
-        public static int OPERATOR_CONTROLLER_PORT = 1;
+        public static final int DRIVER_CONTROLLER_PORT = 0;
+        public static final int OPERATOR_CONTROLLER_PORT = 1;
+
+        public static final double TRANSLATE_POWER_FAST = 1.0; // Scaling for teleop driving.  1.0 is maximum
+        public static final double ROTATE_POWER_FAST = 0.75; // Scaling for teleop driving.  1.0 is maximum
+        public static final double TRANSLATE_POWER_SLOW = 0.30; // Scaling for teleop driving.  1.0 is maximum
+        public static final double ROTATE_POWER_SLOW = 0.25; // Scaling for teleop driving.  1.0 is maximum
+
+        public static final double JOYSTICK_DEADBAND_TRANSLATE = 0.05;
+        public static final double JOYSTICK_DEADBAND_ROTATE = 0.05;
+        public static final double SIMULATION_DEADBAND = 0.1;
+
+        public static final double SLEW_RATE_TRANSLATE = 3.0; // % change in input per second
+        public static final double SLEW_RATE_ROTATE = 3.0; // % change in input per second
     }
 }

@@ -23,4 +23,10 @@ public class SwerveCommands {
             ));
         });
     }
+
+    public Command setSnail(boolean snail) {
+        return m_swerve.runOnce(() -> {
+            m_swerve.setSnailMode(snail);
+        });
+    }
 }

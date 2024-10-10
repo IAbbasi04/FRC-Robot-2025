@@ -12,7 +12,7 @@ public class AutonomousSelector {
 
     public Class<?>[] autos = {
         // Put all autos in here
-        TwoNoteAuto.class,
+        MiddleWing2Auto.class,
         MiddleWing321Auto.class,
     };
 
