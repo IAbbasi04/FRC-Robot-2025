@@ -1,5 +1,7 @@
 package frc.robot.common;
 
+import java.lang.reflect.Field;
+
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
 
@@ -13,6 +15,11 @@ public class Controls {
     public static Trigger PRIME_AMP = new Trigger(() -> false);
     public static Trigger SHOOT = new Trigger(() -> false);
     public static Trigger SPEAKER_LOCK = new Trigger(() -> false);
+
+    private static SmartLogger logger;
+
+    private static boolean logToShuffleboard = false;
+    private static boolean loggingEnabled = false;
 
     public static void singleDriverControls() {
         OUTAKE = RobotContainer.getDriverController().leftBumper();
@@ -42,7 +49,25 @@ public class Controls {
         PRIME_SUBWOOFER = RobotContainer.getOperatorController().rightTrigger();
     }
 
-    public static void programmingTestControls() {
+    public static void initializeShuffleboardLogs(boolean logToShuffleboard) {
+        Controls.logger = new SmartLogger("Controls");
+        Controls.logger.enable();
+
+        Controls.logToShuffleboard = logToShuffleboard;
+        Controls.loggingEnabled = true;
+    }
+
+    public static void logControlsToShuffleboard() {
+        if (!Controls.logToShuffleboard) return; // Don't log if we don't want to log
         
+        if (!Controls.loggingEnabled) { // If not already enabled, enable it
+            initializeShuffleboardLogs(true);
+        }
+
+        for (Field field : Controls.class.getDeclaredFields()) {
+            try {
+                logger.logBoolean(field.getName(), ((Trigger)field.get(null)).getAsBoolean());
+            } catch (Exception e) {}
+        }
     }
 }

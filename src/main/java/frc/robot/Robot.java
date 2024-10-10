@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.*;
+import frc.robot.common.Controls;
 import frc.robot.common.MatchMode;
 import frc.robot.common.Utils;
 import frc.robot.common.crescendo.tables.ShotTable;
@@ -24,14 +25,12 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
-
-  private Timer timer = new Timer();
+  private RobotContainer m_robotContainer;
 
   public static Field2d FIELD = new Field2d();
   public static MatchMode MODE = MatchMode.DISABLED;
   public static ShotTable SHOT_TABLE = new ShotTable();
-
-  private RobotContainer m_robotContainer;
+  public static Timer TIMER = new Timer();
 
   @Override
   public void robotInit() {
@@ -57,10 +56,11 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
-    timer.start();
+    TIMER.start();
 
     CommandScheduler.getInstance().run();
     m_robotContainer.logData();
+    Controls.logControlsToShuffleboard();
   }
 
   @Override

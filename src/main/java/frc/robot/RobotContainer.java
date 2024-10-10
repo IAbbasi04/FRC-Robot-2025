@@ -57,6 +57,8 @@ public class RobotContainer {
     this.configureBindings();
     this.registerNamedCommands();
     RobotContainer.initializeAutoBuilder();
+
+    Controls.initializeShuffleboardLogs(logToShuffleboard);
   }
 
   /**
@@ -147,13 +149,17 @@ public class RobotContainer {
    */
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Intake", new IntakeCommand());
-    NamedCommands.registerCommand("Shoot", new OutakeCommand());
-    NamedCommands.registerCommand("ShootSubwoofer", new ShootCommand(Robot.SHOT_TABLE.getSubwooferShot()));
+    
+    NamedCommands.registerCommand("ShootSubwoofer", 
+      new SimulatedCommand(new ShootCommand(Robot.SHOT_TABLE.getSubwooferShot()), 1.0)
+    );
+
     NamedCommands.registerCommand("PrimeSubwoofer", new PrimeCommand(Robot.SHOT_TABLE.getSubwooferShot()));
+    
     NamedCommands.registerCommand("ShootRange", 
-      new ShootCommand(Robot.SHOT_TABLE.getShotFromDistance(
+      new SimulatedCommand(new ShootCommand(Robot.SHOT_TABLE.getShotFromDistance(
         VisionSubsystem.getInstance().getDistanceToSpeaker()
-      ))
+      )), 1.0)
     );
 
     NamedCommands.registerCommand("PrimeRange", 
