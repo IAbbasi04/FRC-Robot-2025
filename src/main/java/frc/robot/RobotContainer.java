@@ -108,6 +108,7 @@ public class RobotContainer {
     Controls.singleDriverControls();
 
     // Apply controls here
+    Controls.STOW.onTrue(new StowCommand());
 
     Controls.OUTAKE.whileTrue(
       new OutakeCommand()
@@ -139,8 +140,6 @@ public class RobotContainer {
         VisionSubsystem.getInstance().getDistanceToSpeaker()
       )).withInterruptBehavior(InterruptionBehavior.kCancelSelf)
     );
-
-    Controls.STOW.onTrue(new StowCommand());
   }
 
   /**

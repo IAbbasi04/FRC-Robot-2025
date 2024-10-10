@@ -32,7 +32,5 @@ public class PrimeCommand extends NewtonCommand {
                 () -> (m_feeder.hasNote() && m_feeder.noteStaged()) || Robot.isSimulation()
             )
         );
-
-        addRequirements(m_shooter, m_elevator);
     }
 }

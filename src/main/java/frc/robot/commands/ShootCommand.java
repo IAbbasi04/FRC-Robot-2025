@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import frc.robot.common.crescendo.ShotProfile;
-import frc.robot.subsystems.elevator.ElevatorSubsystem.ElevatorState;
 import frc.robot.subsystems.feeder.FeederSubsystem.FeederState;
 
 public class ShootCommand extends NewtonCommand {
@@ -14,11 +13,7 @@ public class ShootCommand extends NewtonCommand {
                 )
                 .until(() -> (m_shooter.isAtTargetSpeed() && m_elevator.atTargetPosition()))
                 .andThen(m_feeder.getCommands().setFeederState(FeederState.kShoot))
-            .finallyDo(() -> { // Stow everything once completed
-                m_elevator.setElevatorState(ElevatorState.kStow);
-                m_feeder.setFeederState(FeederState.kOff);
-                m_shooter.setDesiredVelocity(0, 0);
-            }));
+            );
         addRequirements(m_feeder, m_shooter, m_elevator);
     }
 }

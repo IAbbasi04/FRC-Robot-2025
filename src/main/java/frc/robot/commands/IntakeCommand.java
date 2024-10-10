@@ -10,10 +10,6 @@ public class IntakeCommand extends NewtonCommand {
                 .alongWith(m_feeder.getCommands().setFeederState(FeederState.kIntake))
                 .until(() -> m_feeder.hasNote())
                 .withInterruptBehavior(InterruptionBehavior.kCancelSelf)
-                .finallyDo(() -> {
-                    m_intake.setDesiredVelocity(0.0);
-                    m_feeder.setFeederState(FeederState.kOff);
-                })
         );
 
         addRequirements(m_intake, m_feeder); // Do not do anything else with feeder and intake

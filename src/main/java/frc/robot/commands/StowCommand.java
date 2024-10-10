@@ -12,7 +12,5 @@ public class StowCommand extends NewtonCommand {
             .alongWith(m_shooter.getCommands().setOff())
             .withInterruptBehavior(InterruptionBehavior.kCancelSelf)
         );
-
-        addRequirements(m_intake, m_feeder, m_shooter, m_elevator);
     }
 }

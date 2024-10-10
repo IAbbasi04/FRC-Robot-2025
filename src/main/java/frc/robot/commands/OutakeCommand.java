@@ -9,10 +9,6 @@ public class OutakeCommand extends NewtonCommand {
             m_intake.getCommands().setOutaking()
                 .alongWith(m_feeder.getCommands().setFeederState(FeederState.kOutake))
                 .withInterruptBehavior(InterruptionBehavior.kCancelSelf)
-                .finallyDo(() -> {
-                    m_intake.setDesiredVelocity(0.0);
-                    m_feeder.setFeederState(FeederState.kOff);
-                })
         );
     }
 }
