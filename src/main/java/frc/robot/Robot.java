@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.*;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.common.Controls;
 import frc.robot.common.MatchMode;
 import frc.robot.common.Utils;
 import frc.robot.common.crescendo.tables.ShotTable;
@@ -24,18 +26,15 @@ import frc.robot.subsystems.swerve.SwerveSubsystem;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
-
-  private Timer timer = new Timer();
+  private RobotContainer m_robotContainer;
 
   public static Field2d FIELD = new Field2d();
   public static MatchMode MODE = MatchMode.DISABLED;
   public static ShotTable SHOT_TABLE = new ShotTable();
-
-  private RobotContainer m_robotContainer;
+  public static Timer TIMER = new Timer();
 
   @Override
   public void robotInit() {
-    m_robotContainer = new RobotContainer(true);
     Logger.recordMetadata("Game", "Crescendo");
     Logger.recordMetadata("Year", "2024");
     Logger.recordMetadata("Robot", "Zenith");
@@ -46,21 +45,22 @@ public class Robot extends LoggedRobot {
         String path = "/U/"+time+".wpilog";
         Logger.addDataReceiver(new WPILOGWriter(path)); // Log to a USB stick
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
         Logger.start();
     }
     else { // If simulated
         SmartDashboard.putData(FIELD);
         FIELD.setRobotPose(new Pose2d());
     }
+
+    m_robotContainer = new RobotContainer(true);
   }
 
   @Override
   public void robotPeriodic() {
-    timer.start();
+    TIMER.start();
 
     CommandScheduler.getInstance().run();
-    m_robotContainer.logData();
+    Controls.logControlsToShuffleboard();
   }
 
   @Override
@@ -120,6 +120,8 @@ public class Robot extends LoggedRobot {
     m_robotContainer.onInit();
 
     CommandScheduler.getInstance().cancelAll();
+
+    CommandScheduler.getInstance().schedule(new IntakeCommand());
   }
 
   @Override

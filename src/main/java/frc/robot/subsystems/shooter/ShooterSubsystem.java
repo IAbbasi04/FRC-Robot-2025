@@ -3,7 +3,6 @@ package frc.robot.subsystems.shooter;
 import frc.robot.Robot;
 import frc.robot.common.MatchMode;
 import frc.robot.common.Ports;
-import frc.robot.common.SmartLogger;
 import frc.robot.hardware.motors.Motor;
 import frc.robot.hardware.motors.VortexMotor;
 import frc.robot.subsystems.NewtonSubsystem;
@@ -26,8 +25,6 @@ public class ShooterSubsystem extends NewtonSubsystem {
         leftMotor = new VortexMotor(Ports.SHOOTER_LEFT_CAN_ID);
         rightMotor = new VortexMotor(Ports.SHOOTER_RIGHT_CAN_ID);
         m_commands = new ShooterCommands(this);
-
-        super.m_logger = new SmartLogger("ShooterSubsystem");
     }
 
     public ShooterCommands getCommands() {

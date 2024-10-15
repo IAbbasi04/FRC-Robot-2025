@@ -14,6 +14,5 @@ public class ShootCommand extends NewtonCommand {
                 .until(() -> (m_shooter.isAtTargetSpeed() && m_elevator.atTargetPosition()))
                 .andThen(m_feeder.getCommands().setFeederState(FeederState.kShoot))
             );
-        addRequirements(m_feeder, m_shooter, m_elevator);
     }
 }

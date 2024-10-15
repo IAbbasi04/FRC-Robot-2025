@@ -9,10 +9,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Robot;
 import frc.robot.common.Constants;
 import frc.robot.common.MatchMode;
-import frc.robot.common.SmartLogger;
 import frc.robot.common.crescendo.Field2024;
+import frc.robot.common.crescendo.ShotProfile;
 import frc.robot.hardware.Limelight;
 import frc.robot.hardware.OrangePy;
 import frc.robot.subsystems.NewtonSubsystem;
@@ -35,7 +36,6 @@ public class VisionSubsystem extends NewtonSubsystem {
     private VisionSubsystem() {
         rearOakD = new OrangePy(Constants.VISION.REAR_ORANGE_PY_NAME);
         frontLimelight = new Limelight(Constants.VISION.FRONT_LIMELIGHT_NAME);
-        super.m_logger = new SmartLogger("VisionSubsystem");
     }
 
     /**
@@ -66,6 +66,10 @@ public class VisionSubsystem extends NewtonSubsystem {
             distance = Math.sqrt(Math.pow(deltas.getX(), 2) + Math.pow(deltas.getY(), 2));
         }
         return distance;
+    }
+
+    public boolean isSpeakerTargetLocked() {
+        return getAngleToSpeaker().getDegrees() <= Constants.VISION.SPEAKER_LOCK_THRESHOLD;
     }
 
     /**
@@ -157,7 +161,12 @@ public class VisionSubsystem extends NewtonSubsystem {
 
     @Override
     public void periodicLogs() {
+        m_logger.logDouble("Distance to Target (m)", getDistanceToSpeaker());
 
+        ShotProfile rangedShotFromHere = Robot.SHOT_TABLE.getShotFromDistance(getDistanceToSpeaker());
+        m_logger.logDouble("Distance Based Desired Pivot Angle", rangedShotFromHere.pivotDegrees);
+        m_logger.logDouble("Distance Based Desired Left RPM", rangedShotFromHere.leftShotRPM);
+        m_logger.logDouble("Distance Based Desired Right RPM", rangedShotFromHere.rightShotRPM);
     }
 
     @Override

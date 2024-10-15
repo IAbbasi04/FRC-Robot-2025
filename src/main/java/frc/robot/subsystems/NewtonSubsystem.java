@@ -16,6 +16,7 @@ public abstract class NewtonSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (!m_running) return;
         periodicLogs();
         periodicOutputs();
     }
@@ -24,14 +25,18 @@ public abstract class NewtonSubsystem extends SubsystemBase {
         return m_running;
     }
 
-    /**
-   * Either turns on or off the logging for the particular subsystem
-   */
-  public void enableLogger(boolean log) {
-    if (log) {
-        m_logger.enable();
-    } else {
-        m_logger.disable();
+    public void initializeLogger(boolean enableShuffleboardLogging) {
+        this.m_logger = new SmartLogger(getName(), enableShuffleboardLogging);
     }
-  }
+
+        /**
+     * Either turns on or off the logging for the particular subsystem
+     */
+    public void enableLogger(boolean log) {
+        if (log) {
+            m_logger.enable();
+        } else {
+            m_logger.disable();
+        }
+    }
 }

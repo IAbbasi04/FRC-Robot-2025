@@ -1,6 +1,8 @@
 package frc.robot.common;
 
 public final class Ports {
+    public static final int PDH_ID = 1; // PDH
+    
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR_CAN_ID = 14; // Named Black in Electronics
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR_CAN_ID = 13;
 
@@ -20,7 +22,7 @@ public final class Ports {
 
     public static final int PIGEON_CAN_ID = 17; // Gyro
 
-    public static final int PDH_CAN_ID = 1; // PDH
+    public static final int LED_PWM_ID = 0; // Gyro
 
     public static final int INTAKE_ROLLER_CAN_ID = 35; // Intake
 

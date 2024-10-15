@@ -1,10 +1,9 @@
 package frc.robot.subsystems.elevator;
 
 import frc.robot.common.Constants.ELEVATOR;
-import frc.robot.common.Conversions;
+import frc.robot.common.math.Conversions;
 import frc.robot.common.MatchMode;
 import frc.robot.common.Ports;
-import frc.robot.common.SmartLogger;
 import frc.robot.hardware.ProfileGains;
 import frc.robot.hardware.motors.VortexMotor;
 import frc.robot.subsystems.NewtonSubsystem;
@@ -102,8 +101,6 @@ public class ElevatorSubsystem extends NewtonSubsystem {
         desiredState = ElevatorState.kDefault;
 
         m_commands = new ElevatorCommands(this);
-
-        super.m_logger = new SmartLogger("ElevatorSubsystem");
     }
 
     /**

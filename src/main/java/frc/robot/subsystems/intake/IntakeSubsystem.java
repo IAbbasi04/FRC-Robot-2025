@@ -22,8 +22,6 @@ public class IntakeSubsystem extends NewtonSubsystem {
         this.m_rollerMotor.setCurrentLimit(Constants.INTAKE.INTAKE_MOTOR_CURRENT_LIMIT);
 
         this.m_commands = new IntakeCommands(this);
-
-        super.m_logger = new SmartLogger("IntakeSubsystem");
     }
 
     /**

@@ -10,7 +10,7 @@ public class FeederCommands {
     }
 
     public Command setFeederState(FeederState state) {
-        return m_feeder.runOnce(() -> {
+        return m_feeder.run(() -> {
             m_feeder.setFeederState(state);
         });
     }

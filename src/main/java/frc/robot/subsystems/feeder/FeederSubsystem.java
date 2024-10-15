@@ -3,7 +3,6 @@ package frc.robot.subsystems.feeder;
 import frc.robot.common.Constants;
 import frc.robot.common.MatchMode;
 import frc.robot.common.Ports;
-import frc.robot.common.SmartLogger;
 import frc.robot.hardware.BeamSensor;
 import frc.robot.hardware.ProfileGains;
 import frc.robot.hardware.motors.VortexMotor;
@@ -64,7 +63,6 @@ public class FeederSubsystem extends NewtonSubsystem {
         noteState = NoteState.kNone;
         feederState = FeederState.kOff;
         m_commands = new FeederCommands(this);
-        super.m_logger = new SmartLogger("FeederSubsystem");
     }
 
     public FeederCommands getCommands() {
@@ -191,9 +189,9 @@ public class FeederSubsystem extends NewtonSubsystem {
         switch (feederState) {
             case kOff:
                 desiredRPM = 0.0;
-                if (this.noteState == NoteState.kHasNote || this.noteState == NoteState.kAligning) {
-                    this.feederState = FeederState.kIntake;
-                }
+                // if (this.noteState == NoteState.kHasNote || this.noteState == NoteState.kAligning) {
+                //     this.feederState = FeederState.kIntake;
+                // }
                 break;
             case kShoot:
                 desiredRPM = Constants.FEEDER.FEEDER_SHOOT_RPM;

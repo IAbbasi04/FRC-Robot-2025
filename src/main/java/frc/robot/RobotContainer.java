@@ -20,11 +20,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.autonomous.AutonomousSelector;
 import frc.robot.commands.*;
 import frc.robot.common.*;
+import frc.robot.common.DriveScaler.ScaleType;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.feeder.FeederSubsystem;
 import frc.robot.subsystems.feeder.FeederSubsystem.FeederState;
 import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.led.LEDSubsystem;
+import frc.robot.subsystems.power.PowerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -38,10 +41,25 @@ public class RobotContainer {
   private DoubleSupplier translateY = () -> -driverController.getLeftY();
   private DoubleSupplier rotate = () -> -driverController.getRightX();
 
+  private DriveScaler xScaler = new DriveScaler(
+      ScaleType.LINEAR, true
+    ).withSlewLimit(Constants.INPUT.SLEW_RATE_TRANSLATE);
+
+  private DriveScaler yScaler = new DriveScaler(
+      ScaleType.LINEAR, true
+    ).withSlewLimit(Constants.INPUT.SLEW_RATE_TRANSLATE);
+
+  private DriveScaler rotateScaler = new DriveScaler(
+      ScaleType.LINEAR, true
+    );//.withSlewLimit(Constants.INPUT.SLEW_RATE_ROTATE);
+
   public RobotContainer(boolean logToShuffleboard) {
     this.m_runningSubsystems = new SubsystemList(
       // Add all running subsystems here
+      PowerSubsystem.getInstance(),
+      VisionSubsystem.getInstance(),
       SwerveSubsystem.getInstance(),
+      LEDSubsystem.getInstance(),
       IntakeSubsystem.getInstance(),
       ShooterSubsystem.getInstance(),
       ElevatorSubsystem.getInstance(),
@@ -49,14 +67,15 @@ public class RobotContainer {
     );
 
     boolean enableShuffleboardLogging = (Robot.isSimulation() || !DriverStation.isFMSAttached()) && logToShuffleboard;
+    this.m_runningSubsystems.initializeLoggers(enableShuffleboardLogging);
     this.m_runningSubsystems.enableShuffleboardLogging(enableShuffleboardLogging);
-
     this.m_autoSelector = new AutonomousSelector();
 
     this.setDefaults();
     this.configureBindings();
     this.registerNamedCommands();
     RobotContainer.initializeAutoBuilder();
+    Controls.initializeShuffleboardLogs(logToShuffleboard);
   }
 
   /**
@@ -108,6 +127,12 @@ public class RobotContainer {
     Controls.singleDriverControls();
 
     // Apply controls here
+    Controls.SNAIL_MODE.whileTrue(
+      SwerveSubsystem.getInstance().getCommands().setSnail(true)
+    ).whileFalse(
+      SwerveSubsystem.getInstance().getCommands().setSnail(false)
+    );
+
     Controls.STOW.onTrue(new StowCommand());
 
     Controls.OUTAKE.whileTrue(
@@ -147,13 +172,18 @@ public class RobotContainer {
    */
   private void registerNamedCommands() {
     NamedCommands.registerCommand("Intake", new IntakeCommand());
-    NamedCommands.registerCommand("Shoot", new OutakeCommand());
-    NamedCommands.registerCommand("ShootSubwoofer", new ShootCommand(Robot.SHOT_TABLE.getSubwooferShot()));
+    
+    NamedCommands.registerCommand("ShootSubwoofer", 
+      new SimulatedCommand(new ShootCommand(Robot.SHOT_TABLE.getSubwooferShot()), 1.0)
+        .andThen(new StowCommand())
+    );
+
     NamedCommands.registerCommand("PrimeSubwoofer", new PrimeCommand(Robot.SHOT_TABLE.getSubwooferShot()));
+    
     NamedCommands.registerCommand("ShootRange", 
-      new ShootCommand(Robot.SHOT_TABLE.getShotFromDistance(
+      new SimulatedCommand(new ShootCommand(Robot.SHOT_TABLE.getShotFromDistance(
         VisionSubsystem.getInstance().getDistanceToSpeaker()
-      ))
+      )), 1.0)
     );
 
     NamedCommands.registerCommand("PrimeRange", 
@@ -169,18 +199,11 @@ public class RobotContainer {
   private void setDefaults() {
     SwerveSubsystem.getInstance().setDefaultCommand( // Teleop Driving
       SwerveSubsystem.getInstance().getCommands().teleopDriveCommand(
-        translateX,
-        translateY,
-        rotate
+        () -> xScaler.scale(translateX.getAsDouble()),
+        () -> yScaler.scale(translateY.getAsDouble()),
+        () -> rotateScaler.scale(rotate.getAsDouble())
       ).withInterruptBehavior(InterruptionBehavior.kCancelSelf)
     );
-  }
-
-  /**
-   * Logs all subsystem data to AdvatangeScope
-   */
-  public void logData() {
-    this.m_runningSubsystems.logDataAll();
   }
 
   /**

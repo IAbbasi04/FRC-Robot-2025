@@ -9,15 +9,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.common.Constants.INPUT;
 import frc.robot.common.Constants.SWERVE;
 import frc.robot.common.Constants;
 import frc.robot.common.MatchMode;
 import frc.robot.Robot;
 import frc.robot.common.Ports;
-import frc.robot.common.SmartLogger;
 import frc.robot.common.swerve.Swerve;
 import frc.robot.common.swerve.ctre.*;
 import frc.robot.common.swerve.sds.SDSModuleConfigurations;
+import frc.robot.hardware.HardwareUtils;
+import frc.robot.hardware.ProfileGains;
 import frc.robot.subsystems.NewtonSubsystem;
 
 public class SwerveSubsystem extends NewtonSubsystem {
@@ -33,6 +37,13 @@ public class SwerveSubsystem extends NewtonSubsystem {
     private boolean m_isSnailMode = false;
     private Pigeon2 m_pigeon;
 
+    private ProfileGains turnToTargetGains = new ProfileGains()
+        .setP(0.01)
+        .setD(0.005)
+        .setMaxVelocity(2.0) // meters per second
+        .setMaxAccel(3.0) // meters per second per second
+        ;
+
     private SwerveSubsystem() {
         SwerveConstants drivetrain =
             new SwerveConstants()
@@ -41,16 +52,8 @@ public class SwerveSubsystem extends NewtonSubsystem {
                 .withTurnKd(SWERVE.TURN_KD)
         ;
 
-        Slot0Configs steerGains = new Slot0Configs();
-        Slot0Configs driveGains = new Slot0Configs();
-
-        {
-            steerGains.kP = 0.2;
-            steerGains.kD = 0.1;
-
-            driveGains.kP = 0.02;
-            driveGains.kD = 0.01;
-        }
+        Slot0Configs driveGains = HardwareUtils.applyPIDGains(SWERVE.STEER_GAINS);
+        Slot0Configs steerGains = HardwareUtils.applyPIDGains(SWERVE.STEER_GAINS);
 
         // Stores physical information about the swerve and info about user config
         Mk4ModuleConfiguration config = new Mk4ModuleConfiguration();
@@ -82,81 +85,40 @@ public class SwerveSubsystem extends NewtonSubsystem {
                 );
 
         SwerveModuleConstants frontLeft = m_constantsCreator.createModuleConstants(
-                Ports.FRONT_LEFT_MODULE_STEER_MOTOR_CAN_ID,
-                Ports.FRONT_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
-                Ports.FRONT_LEFT_MODULE_STEER_ENCODER_CAN_ID,
-                SWERVE.FRONT_LEFT_MODULE_STEER_OFFSET,
-                SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
-                SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
+            Ports.FRONT_LEFT_MODULE_STEER_MOTOR_CAN_ID,
+            Ports.FRONT_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
+            Ports.FRONT_LEFT_MODULE_STEER_ENCODER_CAN_ID,
+            SWERVE.FRONT_LEFT_MODULE_STEER_OFFSET,
+            SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
+            SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
         );
 
         SwerveModuleConstants frontRight = m_constantsCreator.createModuleConstants(
-                Ports.FRONT_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
-                Ports.FRONT_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
-                Ports.FRONT_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
-                SWERVE.FRONT_RIGHT_MODULE_STEER_OFFSET,
-                SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
-                -SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
+            Ports.FRONT_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
+            Ports.FRONT_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
+            Ports.FRONT_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
+            SWERVE.FRONT_RIGHT_MODULE_STEER_OFFSET,
+            SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
+            -SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
         );
 
         SwerveModuleConstants backLeft = m_constantsCreator.createModuleConstants(
-                Ports.BACK_LEFT_MODULE_STEER_MOTOR_CAN_ID,
-                Ports.BACK_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
-                Ports.BACK_LEFT_MODULE_STEER_ENCODER_CAN_ID,
-                SWERVE.BACK_LEFT_MODULE_STEER_OFFSET,
-                -SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
-                SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
+            Ports.BACK_LEFT_MODULE_STEER_MOTOR_CAN_ID,
+            Ports.BACK_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
+            Ports.BACK_LEFT_MODULE_STEER_ENCODER_CAN_ID,
+            SWERVE.BACK_LEFT_MODULE_STEER_OFFSET,
+            -SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
+            SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
         );
 
         SwerveModuleConstants backRight = m_constantsCreator.createModuleConstants(
-                Ports.BACK_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
-                Ports.BACK_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
-                Ports.BACK_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
-                SWERVE.BACK_RIGHT_MODULE_STEER_OFFSET,
-                -SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
-                -SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
+            Ports.BACK_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
+            Ports.BACK_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
+            Ports.BACK_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
+            SWERVE.BACK_RIGHT_MODULE_STEER_OFFSET,
+            -SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
+            -SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
         );
-
-        // SwerveModule m_frontLeftModule = Mk4iSwerveModuleHelper.createFalcon500(config,
-        //     Mk4iSwerveModuleHelper.GearRatio.L2,
-        //     Ports.FRONT_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
-        //     Ports.FRONT_LEFT_MODULE_STEER_MOTOR_CAN_ID,
-        //     Ports.FRONT_LEFT_MODULE_STEER_ENCODER_CAN_ID,
-        //     SWERVE.FRONT_LEFT_MODULE_STEER_OFFSET
-        // );
-
-        // SwerveModule m_frontRightModule = Mk4iSwerveModuleHelper.createFalcon500(config,
-        //     Mk4iSwerveModuleHelper.GearRatio.L2,
-        //     Ports.FRONT_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
-        //     Ports.FRONT_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
-        //     Ports.FRONT_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
-        //     SWERVE.FRONT_RIGHT_MODULE_STEER_OFFSET
-        // );
-
-        // SwerveModule m_backLeftModule = Mk4iSwerveModuleHelper.createFalcon500(config,
-        //     Mk4iSwerveModuleHelper.GearRatio.L2,
-        //     Ports.BACK_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
-        //     Ports.BACK_LEFT_MODULE_STEER_MOTOR_CAN_ID,
-        //     Ports.BACK_LEFT_MODULE_STEER_ENCODER_CAN_ID,
-        //     SWERVE.BACK_LEFT_MODULE_STEER_OFFSET
-        // );
-
-        // SwerveModule m_backRightModule = Mk4iSwerveModuleHelper.createFalcon500(config,
-        //     Mk4iSwerveModuleHelper.GearRatio.L2,
-        //     Ports.BACK_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
-        //     Ports.BACK_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
-        //     Ports.BACK_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
-        //     SWERVE.BACK_RIGHT_MODULE_STEER_OFFSET
-        // );
-
-        // this.m_swerve = new NewtonSwerve(
-        //     config,
-        //     new NewtonPigeon2(m_pigeon),
-        //     m_frontLeftModule, 
-        //     m_frontRightModule, 
-        //     m_backLeftModule, 
-        //     m_backRightModule
-        // );
 
         this.m_swerve = new CTRESwerve(
             drivetrain, 
@@ -168,7 +130,6 @@ public class SwerveSubsystem extends NewtonSubsystem {
         );
 
         m_commands = new SwerveCommands(this);
-        super.m_logger = new SmartLogger("SwerveSubsystem");
     }
 
     /**
@@ -189,47 +150,26 @@ public class SwerveSubsystem extends NewtonSubsystem {
      * Runs through code for normalizing and processing driver input
      */
     public ChassisSpeeds processInputs(double translateX, double translateY, double rotate) {
-        // double driveTranslateY = (
-        //     translateY >= 0
-        //     ? (Math.pow(translateY, SWERVE.TRANSLATE_EXPONENT))
-        //     : -(Math.pow(translateY, SWERVE.TRANSLATE_EXPONENT))
-        // );
-
-        // double driveTranslateX = (
-        //     translateX >= 0 
-        //     ? (Math.pow(translateX, SWERVE.TRANSLATE_EXPONENT))
-        //     : -(Math.pow(translateX, SWERVE.TRANSLATE_EXPONENT))
-        // );
-
-        // double driveRotate = (
-        //     rotate >= 0
-        //     ? (Math.pow(rotate, SWERVE.TRANSLATE_EXPONENT))
-        //     : -(Math.pow(rotate, SWERVE.TRANSLATE_EXPONENT))
-        // );
-
-        // double driveTranslateX = Math.pow(translateX, SWERVE.TRANSLATE_EXPONENT) * Math.signum(translateX);
-        // double driveTranslateY = Math.pow(translateY, SWERVE.TRANSLATE_EXPONENT) * Math.signum(translateY);
-        // double driveRotate = Math.pow(rotate, SWERVE.ROTATE_EXPONENT) * Math.signum(rotate);
-
-        double driveTranslateX = translateX;
-        double driveTranslateY = translateY;
-        double driveRotate = rotate;
+        if (Robot.MODE.isAny(MatchMode.AUTONOMOUS, MatchMode.DISABLED)) return new ChassisSpeeds();
+        double driveTranslateX = translateX;// >= Constants.INPUT.JOYSTICK_DEADBAND_TRANSLATE ? translateX : 0;
+        double driveTranslateY = translateY;// >= Constants.INPUT.JOYSTICK_DEADBAND_TRANSLATE ? translateY : 0;
+        double driveRotate = rotate;// >= Constants.INPUT.JOYSTICK_DEADBAND_ROTATE ? rotate : 0;;
 
         //Create a new ChassisSpeeds object with X, Y, and angular velocity from controller input
         ChassisSpeeds currentSpeeds;
 
         if (m_isSnailMode) { //Slow Mode slows down the robot for better precision & control
             currentSpeeds = new ChassisSpeeds(
-                driveTranslateY * SWERVE.TRANSLATE_POWER_SLOW * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
-                driveTranslateX * SWERVE.TRANSLATE_POWER_SLOW * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
-                driveRotate * SWERVE.ROTATE_POWER_SLOW * SWERVE.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                driveTranslateY * INPUT.TRANSLATE_POWER_SLOW * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
+                driveTranslateX * INPUT.TRANSLATE_POWER_SLOW * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
+                driveRotate * INPUT.ROTATE_POWER_SLOW * SWERVE.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
             );
         }
         else {
             currentSpeeds = new ChassisSpeeds(
-                driveTranslateY * SWERVE.TRANSLATE_POWER_FAST * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
-                driveTranslateX * SWERVE.TRANSLATE_POWER_FAST * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
-                driveRotate * SWERVE.ROTATE_POWER_FAST * SWERVE.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+                driveTranslateY * INPUT.TRANSLATE_POWER_FAST * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
+                driveTranslateX * INPUT.TRANSLATE_POWER_FAST * SWERVE.MAX_VELOCITY_METERS_PER_SECOND,
+                driveRotate * INPUT.ROTATE_POWER_FAST * SWERVE.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
             );
         }
 
@@ -276,6 +216,20 @@ public class SwerveSubsystem extends NewtonSubsystem {
         return this.m_swerve.getCurrentSpeeds();
     }
 
+    public double getRotationSpeedToTarget(Pose2d targetPose) {
+        return turnToTargetGains.toProfiledPIDController().calculate(
+            m_swerve.getGyroscopeRotation().getDegrees(),
+            targetPose.getRotation().getDegrees()    
+        );
+    }
+
+    public double getRotationSpeedToRotation(Rotation2d rotation) {
+        return turnToTargetGains.toProfiledPIDController().calculate(
+            m_swerve.getGyroscopeRotation().getDegrees(),
+            rotation.getDegrees()
+        );
+    }
+
     /**
      * The swerve commands set for the swerve subsystem
      */
@@ -299,23 +253,51 @@ public class SwerveSubsystem extends NewtonSubsystem {
     @Override
     public void periodicLogs() {
         this.m_logger.logChassisSpeeds("Desired Speeds", m_desiredSpeeds);
+        this.m_logger.logChassisSpeeds("Current Speeds", m_swerve.getCurrentSpeeds());
+        this.m_logger.logPose2d("Current Pose", m_swerve.getCurrentPose());
     }
 
     @Override
     public void periodicOutputs() {
         this.m_swerve.driveRobotCentric(m_desiredSpeeds);
-        if (Robot.isSimulation() && Robot.MODE.isAny(MatchMode.TELEOP, MatchMode.TEST)) {
-            Robot.FIELD.setRobotPose( // Translate the simulated robot pose to simulate teleop movement
-                getCurrentPose().transformBy(
-                    new Transform2d(
-                        new Translation2d(
-                            0.02 * m_desiredSpeeds.vxMetersPerSecond,
-                            0.02 * m_desiredSpeeds.vyMetersPerSecond
-                        ),
-                        Rotation2d.fromRadians(0.02 * m_desiredSpeeds.omegaRadiansPerSecond)
-                    )
-                )
-            );
+        if (Robot.isSimulation()) {
+            switch (Robot.MODE) {
+                case AUTONOMOUS:
+                    double colorMultiplier = 1;
+                    if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red) {
+                        colorMultiplier = -1;
+                    }
+
+                    Robot.FIELD.setRobotPose( // Translate the simulated robot pose to simulate teleop movement
+                        getCurrentPose().transformBy(
+                            new Transform2d(
+                                new Translation2d(
+                                    0.02 * m_desiredSpeeds.vxMetersPerSecond * colorMultiplier,
+                                    0.02 * m_desiredSpeeds.vyMetersPerSecond * colorMultiplier
+                                ),
+                                Rotation2d.fromRadians(0.02 * m_desiredSpeeds.omegaRadiansPerSecond)
+                            )
+                        )
+                    );
+                break;
+                case TEST: // Test drives the same as teleop
+                case TELEOP:
+                    Robot.FIELD.setRobotPose( // Translate the simulated robot pose to simulate teleop movement
+                        getCurrentPose().transformBy(
+                            new Transform2d(
+                                new Translation2d(
+                                    -0.02 * m_desiredSpeeds.vyMetersPerSecond,
+                                    0.02 * m_desiredSpeeds.vxMetersPerSecond
+                                ),
+                                Rotation2d.fromRadians(0.02 * m_desiredSpeeds.omegaRadiansPerSecond)
+                            )
+                        )
+                    );
+                default:
+                // Do nothing if in disabled
+                break;
+            }
+            
         }
     }
 }

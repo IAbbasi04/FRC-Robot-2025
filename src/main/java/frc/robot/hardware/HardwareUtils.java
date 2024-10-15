@@ -1,11 +1,12 @@
 package frc.robot.hardware;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.SparkPIDController.AccelStrategy;
 
 public class HardwareUtils {
-    public static void setPIDGains(CANSparkMax motor, ProfileGains gains) {
+    public static void applyPIDGains(CANSparkMax motor, ProfileGains gains) {
         motor.getEncoder().setPositionConversionFactor(gains.getScalingFactor());
         motor.getEncoder().setVelocityConversionFactor(gains.getScalingFactor());
         
@@ -28,7 +29,7 @@ public class HardwareUtils {
         }
     }
 
-    public static void setPIDGains(CANSparkFlex motor, ProfileGains gains) {
+    public static void applyPIDGains(CANSparkFlex motor, ProfileGains gains) {
         motor.getEncoder().setPositionConversionFactor(gains.getScalingFactor());
         motor.getEncoder().setVelocityConversionFactor(gains.getScalingFactor());
         
@@ -49,5 +50,17 @@ public class HardwareUtils {
         if (gains.getCurrentLimit() > 0) {
             motor.setSmartCurrentLimit(gains.getCurrentLimit(), gains.getCurrentLimit());
         }
+    }
+
+    public static Slot0Configs applyPIDGains(ProfileGains gains) {
+        return new Slot0Configs()
+            .withKP(gains.getP())
+            .withKI(gains.getI())
+            .withKD(gains.getD())
+            .withKG(gains.getG())
+            .withKS(gains.getG())
+            .withKA(gains.getG())
+            .withKV(gains.getG())
+        ;
     }
 }

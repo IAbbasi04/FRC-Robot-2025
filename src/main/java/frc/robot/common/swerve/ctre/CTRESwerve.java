@@ -6,6 +6,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.common.swerve.Swerve;
 
@@ -56,6 +58,8 @@ public class CTRESwerve extends Swerve {
             while (true) {
                 /* Synchronously wait for all signals in drivetrain */
                 var status = BaseStatusSignal.waitForAll(0.1, m_allSignals);
+
+                SmartDashboard.putNumber("TEST FEIN FEIN FEIN", Timer.getFPGATimestamp());
 
                 /* Get status of the waitForAll */
                 if (status.isOK()) {

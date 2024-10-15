@@ -11,6 +11,11 @@ public class ProfileGains {
     private double kI = 0;
     private double kD = 0;
     private double kFF = 0;
+    private double kS = 0;
+    private double kA = 0;
+    private double kV = 0;
+    private double kG = 0;
+
 
     private double maxAccel = Double.POSITIVE_INFINITY;
     private double maxVelo = Double.POSITIVE_INFINITY;
@@ -67,6 +72,42 @@ public class ProfileGains {
 
     public double getFF() {
         return kFF;
+    }
+
+    public ProfileGains setV(double gain) {
+        this.kV = gain;
+        return this;
+    }
+
+    public double getV() {
+        return kV;
+    }
+
+    public ProfileGains setA(double gain) {
+        this.kA = gain;
+        return this;
+    }
+
+    public double getA() {
+        return kA;
+    }
+
+    public ProfileGains setS(double gain) {
+        this.kS = gain;
+        return this;
+    }
+
+    public double getS() {
+        return kS;
+    }
+
+    public ProfileGains setG(double gain) {
+        this.kG = gain;
+        return this;
+    }
+
+    public double getG() {
+        return kG;
     }
 
     public ProfileGains setMaxAccel(double gain) {

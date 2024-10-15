@@ -3,6 +3,7 @@ package frc.robot.common;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.common.math.Conversions;
 import frc.robot.common.swerve.sds.SDSModuleConfigurations;
 import frc.robot.hardware.ProfileGains;
 
@@ -13,22 +14,21 @@ public final class Constants {
     }
     
     public static class SWERVE {
-        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(145.02+180); // Black Module
-        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(339.785-180); // Orange Module
-        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(62.93+180); // Teal Module
-        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(3.867+180); // White Module
+        public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -0.389648;
+        public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -0.441162;
+        public static final double BACK_LEFT_MODULE_STEER_OFFSET = -0.198730;
+        public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -0.498291;
 
-        public static final double THROTTLE_kP = 0.02;
+        public static final double THROTTLE_kP = 3.0;
         public static final double THROTTLE_kI = 0.0;
-        public static final double THROTTLE_kD = 0.01;
+        public static final double THROTTLE_kD = 0.0;
 
-        public static final double STEER_kP = 0.2;
+        public static final double STEER_kP = 100.0;
         public static final double STEER_kI = 0.0;
-        public static final double STEER_kD = 0.1;
+        public static final double STEER_kD = 0.2;
 
         public static final double DRIVE_MOTOR_GEAR_RATIO = SDSModuleConfigurations.MK4I_L2.getDriveReduction();
         public static final double STEER_MOTOR_GEAR_RATIO = SDSModuleConfigurations.MK4I_L2.getSteerReduction();
-        public static final double STEEMOTOR_GEAR_RATIO = SDSModuleConfigurations.MK4I_L2.getWheelDiameter();
 
         public static final ProfileGains THROTTLE_GAINS = new ProfileGains()
             .setP(THROTTLE_kP)
@@ -47,11 +47,6 @@ public final class Constants {
         public static final double WHEEL_CIRCUMFERENCE = 4 * Math.PI; // inches
 
         public static final double DRIVE_TRAIN_RADIUS = Math.sqrt(Math.pow(DRIVE_TRAIN_WIDTH, 2) + Math.pow(DRIVE_TRAIN_LENGTH, 2)); // meters
-
-        public static final double TRANSLATE_POWER_FAST = 1.0; // Scaling for teleop driving.  1.0 is maximum
-        public static final double ROTATE_POWER_FAST = 0.75; // Scaling for teleop driving.  1.0 is maximum
-        public static final double TRANSLATE_POWER_SLOW = 0.15; // Scaling for teleop driving.  1.0 is maximum
-        public static final double ROTATE_POWER_SLOW = 0.15; // Scaling for teleop driving.  1.0 is maximum   
 
         public static final double MAX_VOLTAGE = 12.0;
         public static final double MAX_VELOCITY_METERS_PER_SECOND = 4.5;
@@ -127,7 +122,7 @@ public final class Constants {
     }
 
     public static class LED {
-
+        public static final int LED_LENGTH = 30;
     }
 
     public static class VISION {
@@ -138,10 +133,24 @@ public final class Constants {
 
         public static final String FRONT_LIMELIGHT_NAME = "limelight-targetting";
         public static final String REAR_ORANGE_PY_NAME = "jetson";
+
+        public static final double SPEAKER_LOCK_THRESHOLD = 2.0; // degrees
     }
 
     public static class INPUT {
-        public static int DRIVER_CONTROLLER_PORT = 0;
-        public static int OPERATOR_CONTROLLER_PORT = 1;
+        public static final int DRIVER_CONTROLLER_PORT = 0;
+        public static final int OPERATOR_CONTROLLER_PORT = 1;
+
+        public static final double TRANSLATE_POWER_FAST = 1.0; // Scaling for teleop driving.  1.0 is maximum
+        public static final double ROTATE_POWER_FAST = 0.75; // Scaling for teleop driving.  1.0 is maximum
+        public static final double TRANSLATE_POWER_SLOW = 0.30; // Scaling for teleop driving.  1.0 is maximum
+        public static final double ROTATE_POWER_SLOW = 0.25; // Scaling for teleop driving.  1.0 is maximum
+
+        public static final double JOYSTICK_DEADBAND_TRANSLATE = 0.05;
+        public static final double JOYSTICK_DEADBAND_ROTATE = 0.05;
+        public static final double SIMULATION_DEADBAND = 0.1;
+
+        public static final double SLEW_RATE_TRANSLATE = 3.0; // % change in input per second
+        public static final double SLEW_RATE_ROTATE = 3.0; // % change in input per second
     }
 }
