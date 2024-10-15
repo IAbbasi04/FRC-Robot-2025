@@ -27,7 +27,6 @@ import frc.robot.subsystems.feeder.FeederSubsystem;
 import frc.robot.subsystems.feeder.FeederSubsystem.FeederState;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.led.LEDSubsystem;
-import frc.robot.subsystems.led.LEDSubsystem.LEDMode;
 import frc.robot.subsystems.power.PowerSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.swerve.SwerveSubsystem;
@@ -185,7 +184,6 @@ public class RobotContainer {
       new SimulatedCommand(new ShootCommand(Robot.SHOT_TABLE.getShotFromDistance(
         VisionSubsystem.getInstance().getDistanceToSpeaker()
       )), 1.0)
-      // new WaitCommand(1.0)
     );
 
     NamedCommands.registerCommand("PrimeRange", 
@@ -205,11 +203,6 @@ public class RobotContainer {
         () -> yScaler.scale(translateY.getAsDouble()),
         () -> rotateScaler.scale(rotate.getAsDouble())
       ).withInterruptBehavior(InterruptionBehavior.kCancelSelf)
-    );
-
-    LEDSubsystem.getInstance().setDefaultCommand( // Default LED mode
-      LEDSubsystem.getInstance().getCommands().setLEDMode(LEDMode.kDisabled)
-      .withInterruptBehavior(InterruptionBehavior.kCancelSelf)
     );
   }
 

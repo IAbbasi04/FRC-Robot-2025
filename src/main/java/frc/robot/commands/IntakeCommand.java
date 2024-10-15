@@ -11,7 +11,5 @@ public class IntakeCommand extends NewtonCommand {
                 .until(() -> m_feeder.hasNote())
                 .withInterruptBehavior(InterruptionBehavior.kCancelSelf)
         );
-
-        addRequirements(m_intake, m_feeder); // Do not do anything else with feeder and intake
     }
 }

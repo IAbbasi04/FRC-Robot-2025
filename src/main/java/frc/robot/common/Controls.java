@@ -16,6 +16,11 @@ public class Controls {
     public static Trigger PRIME_AMP = new Trigger(() -> false);
     public static Trigger SHOOT = new Trigger(() -> false);
     public static Trigger SPEAKER_LOCK = new Trigger(() -> false);
+    public static Trigger INITIATE_CLIMB = new Trigger(() -> false);
+    public static Trigger CLIMBER_UP = new Trigger(() -> false);
+    public static Trigger CLIMBER_DOWN = new Trigger(() -> false);
+
+    private static Trigger SHIFT = new Trigger(() -> false);
 
     private static SmartLogger logger;
 
@@ -23,18 +28,24 @@ public class Controls {
     private static boolean loggingEnabled = false;
 
     public static void singleDriverControls() {
-        OUTAKE = RobotContainer.getDriverController().leftBumper();
-        INTAKE = RobotContainer.getDriverController().leftTrigger();
+        SHIFT = RobotContainer.getDriverController().leftBumper();
+
+        INTAKE = RobotContainer.getDriverController().leftTrigger().and(() -> !SHIFT.getAsBoolean());
+        OUTAKE = RobotContainer.getDriverController().leftTrigger().and(() -> SHIFT.getAsBoolean());
+
+        INITIATE_CLIMB = RobotContainer.getDriverController().start();
+        CLIMBER_UP = RobotContainer.getDriverController().y().and(() -> SHIFT.getAsBoolean());
+        CLIMBER_DOWN = RobotContainer.getDriverController().a().and(() -> SHIFT.getAsBoolean());
 
         PRIME_SUBWOOFER = RobotContainer.getDriverController().x();
-        PRIME_AMP = RobotContainer.getDriverController().y();
-        STOW = RobotContainer.getDriverController().a();
+        PRIME_AMP = RobotContainer.getDriverController().y().and(() -> !SHIFT.getAsBoolean());
+        STOW = RobotContainer.getDriverController().a().and(() -> !SHIFT.getAsBoolean());
         PRIME_PODIUM = RobotContainer.getDriverController().b();
 
-        PRIME_RANGE = RobotContainer.getDriverController().rightBumper(); // On press
-        SPEAKER_LOCK = RobotContainer.getDriverController().rightBumper(); // On hold
+        PRIME_RANGE = RobotContainer.getDriverController().rightBumper();
 
         SHOOT = RobotContainer.getDriverController().rightTrigger();
+        SPEAKER_LOCK = RobotContainer.getDriverController().rightTrigger().and(() -> SHIFT.getAsBoolean());
 
         SNAIL_MODE = RobotContainer.getDriverController().leftStick();
     }

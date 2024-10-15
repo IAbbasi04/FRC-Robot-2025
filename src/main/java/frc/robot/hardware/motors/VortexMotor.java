@@ -38,7 +38,7 @@ public class VortexMotor extends Motor {
 
     @Override
     public void withGains(ProfileGains gains, int index) {
-        HardwareUtils.setPIDGains(motor, gains.setSlot(index));
+        HardwareUtils.applyPIDGains(motor, gains.setSlot(index));
     }
 
     @Override

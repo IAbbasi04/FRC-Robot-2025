@@ -189,9 +189,9 @@ public class FeederSubsystem extends NewtonSubsystem {
         switch (feederState) {
             case kOff:
                 desiredRPM = 0.0;
-                if (this.noteState == NoteState.kHasNote || this.noteState == NoteState.kAligning) {
-                    this.feederState = FeederState.kIntake;
-                }
+                // if (this.noteState == NoteState.kHasNote || this.noteState == NoteState.kAligning) {
+                //     this.feederState = FeederState.kIntake;
+                // }
                 break;
             case kShoot:
                 desiredRPM = Constants.FEEDER.FEEDER_SHOOT_RPM;

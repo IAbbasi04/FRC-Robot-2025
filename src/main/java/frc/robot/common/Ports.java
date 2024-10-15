@@ -22,6 +22,7 @@ public final class Ports {
 
     public static final int PIGEON_CAN_ID = 17; // Gyro
 
+    public static final int LED_PWM_ID = 0; // Gyro
 
     public static final int INTAKE_ROLLER_CAN_ID = 35; // Intake
 

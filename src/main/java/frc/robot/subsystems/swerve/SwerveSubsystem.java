@@ -20,6 +20,8 @@ import frc.robot.common.Ports;
 import frc.robot.common.swerve.Swerve;
 import frc.robot.common.swerve.ctre.*;
 import frc.robot.common.swerve.sds.SDSModuleConfigurations;
+import frc.robot.hardware.HardwareUtils;
+import frc.robot.hardware.ProfileGains;
 import frc.robot.subsystems.NewtonSubsystem;
 
 public class SwerveSubsystem extends NewtonSubsystem {
@@ -35,6 +37,13 @@ public class SwerveSubsystem extends NewtonSubsystem {
     private boolean m_isSnailMode = false;
     private Pigeon2 m_pigeon;
 
+    private ProfileGains turnToTargetGains = new ProfileGains()
+        .setP(0.01)
+        .setD(0.005)
+        .setMaxVelocity(2.0) // meters per second
+        .setMaxAccel(3.0) // meters per second per second
+        ;
+
     private SwerveSubsystem() {
         SwerveConstants drivetrain =
             new SwerveConstants()
@@ -43,16 +52,8 @@ public class SwerveSubsystem extends NewtonSubsystem {
                 .withTurnKd(SWERVE.TURN_KD)
         ;
 
-        Slot0Configs steerGains = new Slot0Configs();
-        Slot0Configs driveGains = new Slot0Configs();
-
-        {
-            steerGains.kP = 0.2;
-            steerGains.kD = 0.1;
-
-            driveGains.kP = 0.02;
-            driveGains.kD = 0.01;
-        }
+        Slot0Configs driveGains = HardwareUtils.applyPIDGains(SWERVE.STEER_GAINS);
+        Slot0Configs steerGains = HardwareUtils.applyPIDGains(SWERVE.STEER_GAINS);
 
         // Stores physical information about the swerve and info about user config
         Mk4ModuleConfiguration config = new Mk4ModuleConfiguration();
@@ -84,81 +85,40 @@ public class SwerveSubsystem extends NewtonSubsystem {
                 );
 
         SwerveModuleConstants frontLeft = m_constantsCreator.createModuleConstants(
-                Ports.FRONT_LEFT_MODULE_STEER_MOTOR_CAN_ID,
-                Ports.FRONT_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
-                Ports.FRONT_LEFT_MODULE_STEER_ENCODER_CAN_ID,
-                SWERVE.FRONT_LEFT_MODULE_STEER_OFFSET,
-                SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
-                SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
+            Ports.FRONT_LEFT_MODULE_STEER_MOTOR_CAN_ID,
+            Ports.FRONT_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
+            Ports.FRONT_LEFT_MODULE_STEER_ENCODER_CAN_ID,
+            SWERVE.FRONT_LEFT_MODULE_STEER_OFFSET,
+            SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
+            SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
         );
 
         SwerveModuleConstants frontRight = m_constantsCreator.createModuleConstants(
-                Ports.FRONT_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
-                Ports.FRONT_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
-                Ports.FRONT_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
-                SWERVE.FRONT_RIGHT_MODULE_STEER_OFFSET,
-                SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
-                -SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
+            Ports.FRONT_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
+            Ports.FRONT_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
+            Ports.FRONT_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
+            SWERVE.FRONT_RIGHT_MODULE_STEER_OFFSET,
+            SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
+            -SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
         );
 
         SwerveModuleConstants backLeft = m_constantsCreator.createModuleConstants(
-                Ports.BACK_LEFT_MODULE_STEER_MOTOR_CAN_ID,
-                Ports.BACK_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
-                Ports.BACK_LEFT_MODULE_STEER_ENCODER_CAN_ID,
-                SWERVE.BACK_LEFT_MODULE_STEER_OFFSET,
-                -SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
-                SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
+            Ports.BACK_LEFT_MODULE_STEER_MOTOR_CAN_ID,
+            Ports.BACK_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
+            Ports.BACK_LEFT_MODULE_STEER_ENCODER_CAN_ID,
+            SWERVE.BACK_LEFT_MODULE_STEER_OFFSET,
+            -SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
+            SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
         );
 
         SwerveModuleConstants backRight = m_constantsCreator.createModuleConstants(
-                Ports.BACK_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
-                Ports.BACK_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
-                Ports.BACK_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
-                SWERVE.BACK_RIGHT_MODULE_STEER_OFFSET,
-                -SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
-                -SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
+            Ports.BACK_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
+            Ports.BACK_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
+            Ports.BACK_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
+            SWERVE.BACK_RIGHT_MODULE_STEER_OFFSET,
+            -SWERVE.DRIVE_TRAIN_LENGTH / 2.0,
+            -SWERVE.DRIVE_TRAIN_WIDTH  / 2.0
         );
-
-        // SwerveModule m_frontLeftModule = Mk4iSwerveModuleHelper.createFalcon500(config,
-        //     Mk4iSwerveModuleHelper.GearRatio.L2,
-        //     Ports.FRONT_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
-        //     Ports.FRONT_LEFT_MODULE_STEER_MOTOR_CAN_ID,
-        //     Ports.FRONT_LEFT_MODULE_STEER_ENCODER_CAN_ID,
-        //     SWERVE.FRONT_LEFT_MODULE_STEER_OFFSET
-        // );
-
-        // SwerveModule m_frontRightModule = Mk4iSwerveModuleHelper.createFalcon500(config,
-        //     Mk4iSwerveModuleHelper.GearRatio.L2,
-        //     Ports.FRONT_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
-        //     Ports.FRONT_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
-        //     Ports.FRONT_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
-        //     SWERVE.FRONT_RIGHT_MODULE_STEER_OFFSET
-        // );
-
-        // SwerveModule m_backLeftModule = Mk4iSwerveModuleHelper.createFalcon500(config,
-        //     Mk4iSwerveModuleHelper.GearRatio.L2,
-        //     Ports.BACK_LEFT_MODULE_DRIVE_MOTOR_CAN_ID,
-        //     Ports.BACK_LEFT_MODULE_STEER_MOTOR_CAN_ID,
-        //     Ports.BACK_LEFT_MODULE_STEER_ENCODER_CAN_ID,
-        //     SWERVE.BACK_LEFT_MODULE_STEER_OFFSET
-        // );
-
-        // SwerveModule m_backRightModule = Mk4iSwerveModuleHelper.createFalcon500(config,
-        //     Mk4iSwerveModuleHelper.GearRatio.L2,
-        //     Ports.BACK_RIGHT_MODULE_DRIVE_MOTOR_CAN_ID,
-        //     Ports.BACK_RIGHT_MODULE_STEER_MOTOR_CAN_ID,
-        //     Ports.BACK_RIGHT_MODULE_STEER_ENCODER_CAN_ID,
-        //     SWERVE.BACK_RIGHT_MODULE_STEER_OFFSET
-        // );
-
-        // this.m_swerve = new NewtonSwerve(
-        //     config,
-        //     new NewtonPigeon2(m_pigeon),
-        //     m_frontLeftModule, 
-        //     m_frontRightModule, 
-        //     m_backLeftModule, 
-        //     m_backRightModule
-        // );
 
         this.m_swerve = new CTRESwerve(
             drivetrain, 
@@ -254,6 +214,20 @@ public class SwerveSubsystem extends NewtonSubsystem {
             return this.m_desiredSpeeds;
         }
         return this.m_swerve.getCurrentSpeeds();
+    }
+
+    public double getRotationSpeedToTarget(Pose2d targetPose) {
+        return turnToTargetGains.toProfiledPIDController().calculate(
+            m_swerve.getGyroscopeRotation().getDegrees(),
+            targetPose.getRotation().getDegrees()    
+        );
+    }
+
+    public double getRotationSpeedToRotation(Rotation2d rotation) {
+        return turnToTargetGains.toProfiledPIDController().calculate(
+            m_swerve.getGyroscopeRotation().getDegrees(),
+            rotation.getDegrees()
+        );
     }
 
     /**

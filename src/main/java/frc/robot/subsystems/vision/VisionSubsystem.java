@@ -68,6 +68,10 @@ public class VisionSubsystem extends NewtonSubsystem {
         return distance;
     }
 
+    public boolean isSpeakerTargetLocked() {
+        return getAngleToSpeaker().getDegrees() <= Constants.VISION.SPEAKER_LOCK_THRESHOLD;
+    }
+
     /**
      * Yaw offset from speaker
      */

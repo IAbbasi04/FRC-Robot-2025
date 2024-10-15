@@ -1,7 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import frc.robot.common.Constants.ELEVATOR;
-import frc.robot.common.Conversions;
+import frc.robot.common.math.Conversions;
 import frc.robot.common.MatchMode;
 import frc.robot.common.Ports;
 import frc.robot.hardware.ProfileGains;

@@ -1,8 +1,13 @@
 package frc.robot.subsystems.led;
 
+import frc.robot.Robot;
 import frc.robot.common.Constants;
+import frc.robot.common.Controls;
 import frc.robot.common.MatchMode;
+import frc.robot.common.Ports;
 import frc.robot.subsystems.NewtonSubsystem;
+import frc.robot.subsystems.feeder.FeederSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
 import frc.robot.hardware.NeoPixelLED;
 import frc.robot.hardware.NeoPixelLED.PresetColor;
 import edu.wpi.first.wpilibj.Timer;
@@ -17,7 +22,6 @@ public class LEDSubsystem extends NewtonSubsystem {
     private NeoPixelLED ledStrip;
     private LEDMode ledMode;
 
-    private Timer ampTimer;
     private Timer stagedNoteTimer;
 
     private LEDCommands m_commands;
@@ -25,20 +29,18 @@ public class LEDSubsystem extends NewtonSubsystem {
     public enum LEDMode {
         kOff,
         kDisabled,
-        kAmplify,
         kHasNote,
         kStagedNote,
         kTargetLockSearching,
-        kTargetLockLocked
+        kTargetLockLocking,
+        kTargetLockLocked,
     }
 
     private LEDSubsystem() {
-        ledStrip = new NeoPixelLED(0, Constants.LED.);
+        ledStrip = new NeoPixelLED(Ports.LED_PWM_ID, Constants.LED.LED_LENGTH);
         ledMode = LEDMode.kOff;
 
-        ampTimer = new Timer();
         stagedNoteTimer = new Timer();
-
         m_commands = new LEDCommands(this);
     }
 
@@ -50,6 +52,40 @@ public class LEDSubsystem extends NewtonSubsystem {
         this.ledMode = ledMode;
     }
 
+    private void updateLEDMode() {
+        LEDMode desiredLEDMode = LEDMode.kOff;
+        switch(FeederSubsystem.getInstance().getNoteState()) {
+            case kAligning:
+            case kHasNote:
+                desiredLEDMode = LEDMode.kHasNote;
+                break;
+            case kStaged:
+                desiredLEDMode = LEDMode.kStagedNote;
+                break;
+            case kNone:
+            default:
+                desiredLEDMode = LEDMode.kOff;
+                break;
+        }
+
+        if (Controls.SPEAKER_LOCK.getAsBoolean()) { // Locking to target
+            if (VisionSubsystem.getInstance().isSpeakerTargetLocked()) {
+                desiredLEDMode = LEDMode.kTargetLockLocked;
+            } else if (VisionSubsystem.getInstance().isSpeakerTargetVisible()) {
+                desiredLEDMode = LEDMode.kTargetLockLocking;
+            } else {
+                desiredLEDMode = LEDMode.kTargetLockSearching;
+            }
+        }
+
+        if (Robot.MODE.is(MatchMode.DISABLED)) {
+            desiredLEDMode = LEDMode.kDisabled;
+        }
+
+        
+        setLEDMode(desiredLEDMode);
+    }
+
     @Override
     public void onInit(MatchMode mode) {
         if (mode == MatchMode.DISABLED) {
@@ -57,9 +93,6 @@ public class LEDSubsystem extends NewtonSubsystem {
         } else {
             ledMode = LEDMode.kOff;
         }
-
-        ampTimer.reset();
-        ampTimer.start();
 
         stagedNoteTimer.reset();
         stagedNoteTimer.start();
@@ -72,15 +105,9 @@ public class LEDSubsystem extends NewtonSubsystem {
 
     @Override
     public void periodicOutputs() {
+        this.updateLEDMode();
+
         switch (ledMode) {
-            case kAmplify:
-                if (ampTimer.get() <= 1.0) {
-                    ledStrip.wave(PresetColor.YELLOW, PresetColor.WHITE, 0.05);
-                } 
-                else {
-                    ledStrip.setColor(PresetColor.OFF);
-                }
-                break;
             case kHasNote:
                 ledStrip.pulse(PresetColor.LIME_GREEN, PresetColor.OFF, 0.75);
                 break;
@@ -95,13 +122,21 @@ public class LEDSubsystem extends NewtonSubsystem {
             case kDisabled:
                 ledStrip.scroll(PresetColor.TEAL, PresetColor.ORANGE, 0.05);
                 break;
+            case kTargetLockLocked:
+                ledStrip.setColor(PresetColor.LIME_GREEN);
+                break;
+            case kTargetLockLocking:
+                ledStrip.setColor(PresetColor.YELLOW);
+                break;
+            case kTargetLockSearching:
+                ledStrip.pulse(PresetColor.YELLOW, PresetColor.OFF, 0.5);
+                break;
             case kOff:
             default:
                 ledStrip.setColor(PresetColor.OFF);
                 break;
         }
 
-        if (!ledMode.equals(LEDMode.kAmplify)) ampTimer.reset();
         if (!ledMode.equals(LEDMode.kStagedNote)) stagedNoteTimer.reset();
     }
 }

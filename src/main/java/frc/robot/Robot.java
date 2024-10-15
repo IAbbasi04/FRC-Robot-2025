@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.*;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.common.Controls;
 import frc.robot.common.MatchMode;
 import frc.robot.common.Utils;
@@ -34,7 +35,6 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-    m_robotContainer = new RobotContainer(true);
     Logger.recordMetadata("Game", "Crescendo");
     Logger.recordMetadata("Year", "2024");
     Logger.recordMetadata("Robot", "Zenith");
@@ -51,6 +51,8 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putData(FIELD);
         FIELD.setRobotPose(new Pose2d());
     }
+
+    m_robotContainer = new RobotContainer(true);
   }
 
   @Override
@@ -118,6 +120,8 @@ public class Robot extends LoggedRobot {
     m_robotContainer.onInit();
 
     CommandScheduler.getInstance().cancelAll();
+
+    CommandScheduler.getInstance().schedule(new IntakeCommand());
   }
 
   @Override
